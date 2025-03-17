@@ -1,0 +1,63 @@
+<Directory "/var/www/html">
+    PassEnv BASE_URI
+
+    RewriteEngine on
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)?%{BASE_URI}(/.*)?$ [NC]
+    RewriteRule .*\.(jpg|jpeg|png|gif)$ - [NC,L]
+
+    # Hardening: Let's disable HTTP 1.0, which has security weaknesses related to session hijacking
+    RewriteCond %{THE_REQUEST} !HTTP/1.1$
+    RewriteRule .* - [F]
+
+    # Hardening: remove server version banners
+    ServerSignature Off
+
+    # Hardening: Disable Etag, which can expose inode info, MIME boundaries, and child process info
+    FileETag None
+
+    # Hardening: Disable directory browsing and server-side includes
+    Options -Indexes -Includes
+
+    # Hardening: disallow overriding settings with .htaccess files
+    AllowOverride None
+
+    # Hardening: disable HTTP verbs we don't use
+    <LimitExcept GET POST HEAD>
+        Deny From All
+    </LimitExcept>
+</Directory>
+
+# Hardening: explicitly hide sensitive files like .env, logs, and ini
+<Files ~ "\.(env|log|ini|conf|inc)$">
+    Deny From All
+</Files>
+
+<VirtualHost *:80>
+    PassEnv ADMIN_EMAIL CSP_SRC CSP_FONT CSP_FRAME
+
+    ServerAdmin %{ADMIN_EMAIL}
+    DocumentRoot /var/www/html/public_html
+
+    # Hardening: force header settings to prevent cross-site scripting (XSS) and click-jacking attacks
+    Header always append X-Frame-Options SAMEORIGIN
+
+    # Hardening: force all cookies to be Http-Only and Secure.
+    # We already had PHP configured for this, but it's a good idea to force it site-wide, just in case a third-party library sets a cookie.
+    # Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure
+    # NOTE this needs to be disabled in DEV MODE
+
+    # Hardening: force XSS protection, even if the user disabled protection in their browser
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Hardening: set content security policy to prevent cross-site scripting attacks
+    # Note that this means we'll have problems now if we even link to something external and it's not defined here
+    Header add Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' %{CSP_SRC}; font-src 'self' %{CSP_FONT} ; img-src * 'self' data:; worker-src 'self' blob:; frame-src %{CSP_FRAME}"
+
+    # Hardening: CORS headers -- DEV MODE (unsecure by design)
+    Header set Access-Control-Allow-Origin "*"
+
+    # Now DEV logging
+    ErrorLog /var/www/html/error.log
+    CustomLog /var/www/html/access.log combined
+</VirtualHost>

@@ -1,0 +1,7 @@
+# Ignore any non-config composer stuff
+site/libraries/composer.lock
+site/libraries/vendor/**
+
+# Ignore anything that was npm installed
+node-modules/**
+site/node-modules/**

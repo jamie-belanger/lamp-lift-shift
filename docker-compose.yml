@@ -1,0 +1,70 @@
+# Compose file for running lift-and-shifted site locally
+
+version: '3.1'
+services:
+  web:
+    image: mysite
+    build:
+      context: .
+    depends_on:
+      - mydb
+    ports:
+      - "8080:80"
+
+    volumes:
+      # Override the apache conf with a version that has actual log files for local dev:
+      - ./home/apache.conf.dev:/etc/apache2/sites-available/mysite.conf
+
+      # Since we only use the compose file for dev builds, this overrides the files inside the container
+      # with a volume bind, which allows us to see code changes instantly.
+      - ./site:/var/www/html
+
+    environment:
+      # NOTE: all passwords here are for local dev / sample use ONLY
+      # Change these before deploying, or better yet use a secret manager
+
+      # Database connectivity
+      - DB_HOST=mydb
+      - DB_DATABASE=sitedb
+      - DB_USER=mradmin
+      - DB_PASSWORD=mrpassword
+
+      # Apache config variables
+      - ADMIN_EMAIL=admin@localhost
+      - CSP_SRC="*.googleapis.com" # content security policy: script sources
+      - CSP_FONT="fonts.gstatic.com fonts.googleapis.com" # content security policy: font sources
+      - CSP_FRAME="*.google.com" # content security policy: iframes
+      - IP_PROXY="192.168.1.0/24" # allowed IP proxy for header forwarding; set to your load balancer or reverse proxy IP range
+      - CORS_ORIGINS="localhost|googleapis.com|auth0.com" # allowed origins for CORS headers
+
+      # Other
+      - DEBUG=1
+      - BASE_URI=http://localhost:8080
+
+    env_file: .env
+
+    # This allows us to reference other containers 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mydb:
+    image: mysql:8.0.30
+    environment:
+      - MYSQL_ROOT_PASSWORD=secure
+      - MYSQL_DATABASE=sitedb
+      - MYSQL_USER=mradmin
+      - MYSQL_PASSWORD=mrpassword
+    volumes:
+      - mysql:/var/lib/mysql
+      # NOTE: this triggers importing SQL seed files in this folder iff there are no tables
+      # (so if you want to blow away data, bring down mysql, delete the volume, and bring it back up)
+      - ./database:/docker-entrypoint-initdb.d
+      # Override the default MySQL conf file with our customizations:
+      - ./mysql.conf:/etc/mysql/conf.d/mysite.cnf
+    ports:
+      - "33060:3306"
+
+
+volumes:
+  mysql:
+
