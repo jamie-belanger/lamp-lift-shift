@@ -3,5 +3,5 @@ site/libraries/composer.lock
 site/libraries/vendor/**
 
 # Ignore anything that was npm installed
-node-modules/**
-site/node-modules/**
+node_modules/**
+site/node_modules/**
