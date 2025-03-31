@@ -5,7 +5,7 @@ module.exports = {
     SRC: path.resolve(__dirname, "..", "site"),
 
     // The path to put the generated bundle(s)
-    DIST: path.resolve(__dirname, "..", "site", "dist"),
+    DIST: path.resolve(__dirname, "..", "dist"),
 
     /*
   This is your public path.

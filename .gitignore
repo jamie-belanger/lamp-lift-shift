@@ -5,3 +5,12 @@ site/libraries/vendor/**
 # Ignore anything that was npm installed
 node_modules/**
 site/node_modules/**
+
+# Ignore build artifacts from testing webpack
+dist/**
+
+# Ignore local changes that shouldn't be checked in
+.bash_history
+package-lock.json
+site/*.log
+

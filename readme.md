@@ -33,7 +33,7 @@ If either port conflicts with what's on your machine, just update the port mappi
 > **NOTE 2**
 > If this is your first time running (or you just deleted the MySQL volume), it might take a few seconds for the database seed to run. So don't panic if you immediately surf to the site and get an error.
 > 
-> You can check the status with `docker logs mysite-mydb-1` and wait until you see a line saying something like "/usr/sbin/mysqld: ready for connections"
+> You can check the status with `docker logs lamp-lift-shift-mysite-mydb-1` and wait until you see a line saying something like "/usr/sbin/mysqld: ready for connections"
 
 
 ### Error Logs

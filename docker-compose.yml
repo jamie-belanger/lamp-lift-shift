@@ -1,11 +1,11 @@
 # Compose file for running lift-and-shifted site locally
 
-version: '3.1'
 services:
-  web:
+  mysite:
     image: mysite
     build:
       context: .
+    container_name: mysite
     depends_on:
       - mydb
     ports:
@@ -13,7 +13,7 @@ services:
 
     volumes:
       # Override the apache conf with a version that has actual log files for local dev:
-      - ./home/apache.conf.dev:/etc/apache2/sites-available/mysite.conf
+      - ./apache.conf.dev:/etc/apache2/sites-available/mysite.conf
 
       # Since we only use the compose file for dev builds, this overrides the files inside the container
       # with a volume bind, which allows us to see code changes instantly.
@@ -30,25 +30,31 @@ services:
       - DB_PASSWORD=mrpassword
 
       # Apache config variables
-      - ADMIN_EMAIL=admin@localhost
-      - CSP_SRC="*.googleapis.com" # content security policy: script sources
-      - CSP_FONT="fonts.gstatic.com fonts.googleapis.com" # content security policy: font sources
-      - CSP_FRAME="*.google.com" # content security policy: iframes
-      - IP_PROXY="192.168.1.0/24" # allowed IP proxy for header forwarding; set to your load balancer or reverse proxy IP range
-      - CORS_ORIGINS="localhost|googleapis.com|auth0.com" # allowed origins for CORS headers
+      - ADMIN_EMAIL=admin@mysite.com
+      # content security policy: script sources
+      - CSP_SRC=*.googleapis.com
+      # content security policy: font sources
+      - CSP_FONT=fonts.gstatic.com fonts.googleapis.com
+      # content security policy: iframes
+      - CSP_FRAME=*.google.com
+      # allowed IP proxy for header forwarding; set to your load balancer or reverse proxy IP range
+      - IP_PROXY=192.168.1.0/24
+      # allowed origins for CORS headers
+      - CORS_ORIGINS=localhost|googleapis.com|auth0.com
 
       # Other
-      - DEBUG=1
+      - DEBUG=1 # used to toggle which set of scripts I include
       - BASE_URI=http://localhost:8080
-
-    env_file: .env
+      # Optional, if you want to set what's used for frontend script versions
+      # If you don't care, just comment this out and it will append date when linking files
+      - APP_VERSION=v2
 
     # This allows us to reference other containers 
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   mydb:
-    image: mysql:8.0.30
+    image: mysql:8.0.41
     environment:
       - MYSQL_ROOT_PASSWORD=secure
       - MYSQL_DATABASE=sitedb

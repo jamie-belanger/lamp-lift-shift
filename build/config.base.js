@@ -12,16 +12,13 @@ module.exports = {
         // Here's two examples of how to accomplish this:
 
         // First we'll make a master script file using the /site/scripts/index.js entry point
+        // WARNING: This will likely tree-shake most or all code out if you haven't updated it to ES6
+        //          modules! If you're pasting old vanilla JS into this repo, you'll be better off
+        //          adding this manually down below (see MergeIntoSingleFilePlugin, below)
+        //
         mysiteCore: path.resolve(SRC, "scripts", "index.js"),
         // This will be built as /dist/mysiteCore.js
         // It's up to you to include the correct version in your site's code
-
-        // ...and if that gets too big, then you can create additional indexes for other modules,
-        // and have webpack split the code across several bundles like this:
-        // mysiteShared: {
-        //     import: path.resolve(SRC, "scripts", "index-shared.js"),
-        //     dependOn: 'mysiteCore'
-        // },
 
         // And a similar approach for packing CSS styles:
         mysiteStyles: path.resolve(SRC, "styles", "index.js"),
@@ -63,7 +60,7 @@ module.exports = {
         //             to: path.resolve(DIST, "fonts")
         //         }
         //     ]
-        // })
+        // }),
     ],
     module: {
         rules: [

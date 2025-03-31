@@ -1,12 +1,22 @@
 # Start with Node, for webpack
 FROM node:lts-alpine3.21 AS build
-COPY ./site /app
+COPY ./ /app
 WORKDIR /app
 RUN npm install && npm run prod
 
 # Now the PHP/Apache base container
 FROM php:8.3.19-apache
 WORKDIR /var/www/html
+
+# Set environment variables with some default settings for build purposes
+# The actual values are irrelevant; we replace later with compose env vars
+ENV BASE_URI="localhost" \
+    ADMIN_EMAIL="admin@localhost" \
+    IP_PROXY="192.168.1.0/24" \
+    CSP_SRC="" \
+    CSP_FONT="" \
+    CSP_FRAME="" \
+    CORS_ORIGINS=""
 
 # custom Apache and PHP config files
 COPY ./apache.conf /etc/apache2/sites-available/mysite.conf
