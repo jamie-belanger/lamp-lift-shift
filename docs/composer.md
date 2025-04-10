@@ -1,4 +1,4 @@
-# Composer
+# 🪄 Composer
 Composer is a PHP package manager that I use in some sites.
 
 See: https://getcomposer.org/
@@ -13,7 +13,7 @@ To get around installing PHP and Composer on my machine, I dug around and found 
 ## Running the container
 The container can be executed with this command (on Linux / WSL2 Ubuntu prompt):
 ```bash
-cd libraries
+cd site/libraries
 docker run --rm --interactive --tty --volume $PWD:/app --user $(id -u):$(id -g) composer/composer install
 ```
 
@@ -28,3 +28,8 @@ This can be done with a single PHP line:
 require_once "/libraries/vendor/autoload.php";
 ```
 This script, built by Composer, handles including all the PHP libraries it has installed.
+
+
+> **NOTE**
+> 
+> The provided `Dockerfile` does NOT run composer during the build process. It just copies the vendor libraries directly into the container.
