@@ -5,7 +5,7 @@ WORKDIR /app
 RUN npm install && npm run prod
 
 # Now the PHP/Apache base container
-FROM php:8.3.19-apache
+FROM php:8.3.36-apache
 WORKDIR /var/www/html
 
 # Set environment variables with some default settings for build purposes
